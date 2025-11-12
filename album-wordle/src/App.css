@@ -1,38 +1,130 @@
-.App {
-  text-align: center;
+:root {
+  --background-color: white;
+  --text-color: black;
+  --button-color: black;
+  --button-text: white;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.dark-mode {
+  --background-color: #333;
+  --text-color: white;
+  --button-color: rgb(255, 255, 255);
+  --button-text: rgb(0, 0, 0);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.header {
   display: flex;
+  justify-content: center;
+}
+
+.dark-mode-btn {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  width: 100px;
+  height: 50px;
+  border-radius: 10px;
+  color: var(--button-text);
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  background-color: var(--button-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.game-board {
+  display: flex;
+  justify-content: center;
   flex-direction: column;
   align-items: center;
+}
+
+.square {
+  width: 50px;
+  height: 50px;
+  border: 2px solid #999;
+  margin-right: 10px;
+  margin-left: 10px;
+  margin-bottom: 20px;
+  display: flex;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  align-items: center;
+  font-weight: bold;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.square.correct {
+  background-color: #6AAA64;
+  border: 2px solid #6AAA64;
+  transition: background-color 0.3s ease;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.square.wrong {
+  background-color: #3a3a3c;
+  border: 2px solid #3a3a3c;
+  transition: background-color 0.3s ease;
+  color: white;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.square.partial {
+  background-color: #B59f3b;
+  border: 2px solid #B59f3b;
+  transition: background-color 0.3s ease;
+  color: white;
+}
+
+
+.row {
+  display: flex;
+}
+
+.row2 .key {
+  width: 40px;
+}
+
+.row3 .key {
+  width: 46px;
+}
+
+.key {
+  width: 33px;
+  height: 50px;
+  background-color: #999;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 5px;
+  margin-left: 5px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.key:hover {
+  transform: scale(1.2);
+}
+
+.key-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.keyboard {
+  position: absolute;
+  bottom: 40px;
+  width: 100%
 }
