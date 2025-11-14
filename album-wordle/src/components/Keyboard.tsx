@@ -10,10 +10,6 @@ function Keyboard() {
                 <Key letter={"R"} />
                 <Key letter={"T"} />
                 <Key letter={"Y"} />
-                <Key letter={"H"} />
-                <Key letter={"A"} />
-                <Key letter={"T"} />
-                <Key letter={"Y"} />
                 <Key letter={"U"} />
                 <Key letter={"I"} />
                 <Key letter={"O"} />
