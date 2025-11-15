@@ -10,6 +10,7 @@ type KeyProps = {
 function Key({ letter }: KeyProps) {
   const currentWord = useSelector((state: RootState) => state.words.currentWord);
   const keyboardStyle = useSelector((state: RootState) => state.words.keyBoardStyle);
+  const correctWord = useSelector((state: RootState) => state.words.correctWord);
   const [style, setStyle] = useState("");
 
   useEffect(() => {
@@ -23,16 +24,28 @@ function Key({ letter }: KeyProps) {
 
   let dispatch = useDispatch();
 
+  function isSymbol(letter: string) {
+    return !/^[A-Z]$/.test(letter);
+  }
+
   function handleClick() {
     if (letter === "Del") {
-      dispatch(updateCurrentWord(currentWord.slice(0, currentWord.length - 1)));
+      let reduceCount = 1;
+      if (currentWord.length > 1 && isSymbol(correctWord.charAt(currentWord.length - 1))) {
+        reduceCount = 2;
+      }
+      dispatch(updateCurrentWord(currentWord.slice(0, currentWord.length - reduceCount)));
     } else if (letter === "Enter") {
-      if (currentWord.length === 5) {
+      if (currentWord.length === correctWord.length) {
         dispatch(addGuess(currentWord));
         dispatch(updateCurrentWord(""));
       }
-    } else if (currentWord.length < 5) {
-      dispatch(updateCurrentWord(currentWord + letter));
+    } else if (currentWord.length < correctWord.length) {
+      let letterTemp = letter;
+            if (correctWord.length > currentWord.length && isSymbol(correctWord.charAt(currentWord.length + 1))) {
+                letterTemp += correctWord.charAt(currentWord.length + 1);
+            }
+      dispatch(updateCurrentWord(currentWord + letterTemp));
     }
   }
 

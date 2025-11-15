@@ -4,6 +4,8 @@ import { updateCorrectWord, updateCurrentWord, addGuess, updateKeyboardStyle } f
 import type { RootState } from '../store';
 import { useEffect } from "react";
 import { useState } from "react";
+import { DatabaseService } from "../services/databaseService";
+import ResultModal from "./ResultsModal";
 
 function GameBoard() {
     const currentWord = useSelector((state: RootState) => state.words.currentWord);
@@ -14,10 +16,20 @@ function GameBoard() {
     let dispatch = useDispatch();
 
     useEffect(() => {
-        dispatch(updateCorrectWord("FUNNY"));
+        async function handleFetch() {
+            let results = await DatabaseService.fetchAllAlbumNames();
+            results = results.filter((item) => item.length < 18);
+            const result = results[Math.floor(Math.random() * results.length)];
+            console.log(result);
+            dispatch(updateCorrectWord(result.toUpperCase()));
+        }
+        handleFetch();
+    }, [])
+
+    useEffect(() => {
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener("keydown", handleKeyPress);
-    }, [currentWord]);
+    }, [currentWord, correctWord]);
 
     useEffect(() => {
         if (guesses && guesses.length > 0) {
@@ -28,16 +40,31 @@ function GameBoard() {
         }
     }, [guesses]);
 
+    function isSymbol(letter: string) {
+        return !/^[A-Z]$/.test(letter);
+    }
+
     function handleKeyPress(event: KeyboardEvent) {
-        if (currentWord.length < 5 && event.key.length === 1) {
-            dispatch(updateCurrentWord(currentWord + event.key.toUpperCase()));
+        if (correctWord.length === 0) {
+            return;
+        }
+        if (currentWord.length < correctWord.length && event.key.length === 1) {
+            let letter = event.key.toUpperCase();
+            if (correctWord.length > currentWord.length && isSymbol(correctWord.charAt(currentWord.length + 1))) {
+                letter += correctWord.charAt(currentWord.length + 1);
+            }
+            dispatch(updateCurrentWord(currentWord + letter));
         } else if (event.key === "Enter") {
-            if (currentWord.length === 5) {
+            if (currentWord.length === correctWord.length) {
                 dispatch(addGuess(currentWord));
                 dispatch(updateCurrentWord(""));
             }
         } else if (event.key === "Backspace") {
-            dispatch(updateCurrentWord(currentWord.slice(0, currentWord.length - 1)));
+            let reduceCount = 1;
+            if (currentWord.length > 1 && isSymbol(correctWord.charAt(currentWord.length - 1))) {
+                reduceCount = 2;
+            }
+            dispatch(updateCurrentWord(currentWord.slice(0, currentWord.length - reduceCount)));
         }
     }
 
@@ -111,10 +138,11 @@ function GameBoard() {
 
     return (
         <div className="game-board">
+            <ResultModal />
             {Array.from({ length: 6 }).map((_, i) =>
                 <div className="row" key={"row" + i}>
-                    {Array.from({ length: 5 }).map((_, j) =>
-                        <Square letter={getLetter(i, j)} correct={getCorrect(i, j)} delay={j * 300} key={i + ":" + j} />
+                    {Array.from({ length: correctWord.length }).map((_, j) =>
+                        <Square letter={getLetter(i, j)} correct={getCorrect(i, j)} delay={j * 300} key={i + ":" + j} correctLetter={correctWord.charAt(j)} />
                     )}
                 </div>
             )}
