@@ -6,7 +6,6 @@ function Header() {
 
   useEffect(() => {
     const stored = localStorage.getItem('theme');
-    console.log(stored);
     if (stored === 'dark') {
       document.documentElement.classList.add('dark-mode');
       setDarkMode(true);

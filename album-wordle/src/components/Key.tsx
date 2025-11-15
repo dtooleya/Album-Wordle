@@ -11,16 +11,23 @@ function Key({ letter }: KeyProps) {
   const currentWord = useSelector((state: RootState) => state.words.currentWord);
   const keyboardStyle = useSelector((state: RootState) => state.words.keyBoardStyle);
   const correctWord = useSelector((state: RootState) => state.words.correctWord);
+  const endGame = useSelector((state: RootState) => state.words.endGame);
   const [style, setStyle] = useState("");
 
   useEffect(() => {
     const keyboardMap = JSON.parse(keyboardStyle);
     for (const keyboardLetter in keyboardMap) {
       if (keyboardLetter === letter) {
-        setStyle(keyboardMap[keyboardLetter]);
+        setTimeout(()=>setStyle(keyboardMap[keyboardLetter]), correctWord.length * 400);
       }
     }
   }, [keyboardStyle]);
+
+  useEffect(() => {
+    if (!endGame) {
+      setStyle("");
+    }
+  }, [endGame])
 
   let dispatch = useDispatch();
 
@@ -28,11 +35,21 @@ function Key({ letter }: KeyProps) {
     return !/^[A-Z]$/.test(letter);
   }
 
+    function anyString(letter: string) {
+        return /[A-Z]/.test(letter);
+    }
+
   function handleClick() {
+    if (endGame) {
+      return;
+    }
     if (letter === "Del") {
       let reduceCount = 1;
       if (currentWord.length > 1 && isSymbol(correctWord.charAt(currentWord.length - 1))) {
         reduceCount = 2;
+      }
+      if (!anyString(currentWord)) {
+        return;
       }
       dispatch(updateCurrentWord(currentWord.slice(0, currentWord.length - reduceCount)));
     } else if (letter === "Enter") {

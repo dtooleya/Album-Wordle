@@ -12,19 +12,31 @@ function GameBoard() {
     const guesses = useSelector((state: RootState) => state.words.guesses);
     const correctWord = useSelector((state: RootState) => state.words.correctWord);
     const keyboardStyle = useSelector((state: RootState) => state.words.keyBoardStyle);
+    const endGame = useSelector((state: RootState) => state.words.endGame);
     const [correctChecker, setCorrectChecker] = useState([] as any);
     let dispatch = useDispatch();
 
     useEffect(() => {
         async function handleFetch() {
+            setCorrectChecker([] as any);
             let results = await DatabaseService.fetchAllAlbumNames();
             results = results.filter((item) => item.length < 18);
             const result = results[Math.floor(Math.random() * results.length)];
-            console.log(result);
             dispatch(updateCorrectWord(result.toUpperCase()));
+            let temp = "";
+            for (let i = 0; i < result.length; i++) {
+                if (isSymbol(result.charAt(i))) {
+                    temp += result.charAt(i);
+                } else {
+                    break;
+                }
+            }
+            dispatch(updateCurrentWord(temp));
         }
-        handleFetch();
-    }, [])
+        if (correctWord === "") {
+            handleFetch();
+        }
+    }, [correctWord])
 
     useEffect(() => {
         window.addEventListener('keydown', handleKeyPress);
@@ -44,8 +56,15 @@ function GameBoard() {
         return !/^[A-Z]$/.test(letter);
     }
 
+    function anyString(letter: string) {
+        if (letter === "BACKSPACE" || letter === " ENTER") {
+            return true;
+        }
+        return /[A-Z]/.test(letter);
+    }
+
     function handleKeyPress(event: KeyboardEvent) {
-        if (correctWord.length === 0) {
+        if (correctWord.length === 0 || endGame || !anyString(event.key.toUpperCase())) {
             return;
         }
         if (currentWord.length < correctWord.length && event.key.length === 1) {
@@ -63,6 +82,9 @@ function GameBoard() {
             let reduceCount = 1;
             if (currentWord.length > 1 && isSymbol(correctWord.charAt(currentWord.length - 1))) {
                 reduceCount = 2;
+            }
+            if (!anyString(currentWord)) {
+                return;
             }
             dispatch(updateCurrentWord(currentWord.slice(0, currentWord.length - reduceCount)));
         }
